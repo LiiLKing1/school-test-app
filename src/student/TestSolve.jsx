@@ -62,22 +62,32 @@ export default function TestSolve() {
   if (!test) return <div className="alert">Test not found</div>
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{test.title}</h1>
-        <p className="opacity-80">{test.description}</p>
-        <div className="mt-2 text-sm opacity-80">Total score: {(test.questions || []).reduce((s,q)=>s + (typeof q.score==='number'? q.score : 2), 0)}</div>
+    <div className="space-y-8">
+      <div className="flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight">{test.title}</h1>
+          <p className="opacity-80">{test.description}</p>
+        </div>
+        <div className="text-right min-w-[150px]">
+          <div className="text-sm opacity-80">Total score:</div>
+          <div className="text-xl font-bold">{(test.questions || []).reduce((s,q)=>s + (typeof q.score==='number'? q.score : 2), 0)}</div>
+        </div>
       </div>
-      <div className="space-y-6">
+
+      <div className="space-y-8">
         {test.questions.map((q, idx) => (
-          <div key={idx} className="card bg-base-100 shadow">
-            <div className="card-body">
-              <div className="font-medium flex items-center gap-2">Q{idx+1}. {q.q} <span className="badge badge-outline">Score: {typeof q.score==='number'? q.score : 2}</span></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+          <div key={idx} className="relative">
+            <div className="absolute inset-0 translate-x-2 translate-y-2 border border-black pointer-events-none" />
+            <div className="relative border-2 border-black bg-white p-5">
+              <div className="font-semibold text-xl flex items-center gap-3 flex-wrap">
+                <span className="break-words">Q{idx+1}. {q.q}</span>
+                <span className="text-[11px] px-2 py-0.5 border border-black shrink-0">Score: {typeof q.score==='number'? q.score : 2}</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 {q.options.map((opt, j) => (
-                  <label key={j} className={`btn justify-start ${answers[idx]===opt?'btn-primary':''}`}>
-                    <input type="radio" className="radio mr-2" name={`q-${idx}`} checked={answers[idx]===opt} onChange={()=>selectAnswer(idx, opt)} />
-                    {opt}
+                  <label key={j} className={`flex items-center gap-3 border-2 border-black px-4 py-3 cursor-pointer ${answers[idx]===opt?'bg-black text-white':''}`}>
+                    <input type="radio" className="radio" name={`q-${idx}`} checked={answers[idx]===opt} onChange={()=>selectAnswer(idx, opt)} />
+                    <span className="text-base break-words">{opt}</span>
                   </label>
                 ))}
               </div>
@@ -85,7 +95,8 @@ export default function TestSolve() {
           </div>
         ))}
       </div>
-      <button className="btn btn-primary" disabled={!allAnswered || submitting} onClick={handleSubmit}>
+
+      <button className="inline-block bg-black text-white px-6 py-2 rounded-none" disabled={!allAnswered || submitting} onClick={handleSubmit}>
         {submitting ? 'Submitting...' : 'Submit'}
       </button>
     </div>

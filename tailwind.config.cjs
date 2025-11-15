@@ -5,7 +5,12 @@ module.exports = {
     './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Montserrat', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+      },
+    },
   },
   plugins: [require('daisyui')],
   daisyui: {

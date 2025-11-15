@@ -26,20 +26,22 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 card bg-base-100 shadow">
-      <div className="card-body">
-        <h2 className="card-title">Ro'yxatdan o'tish</h2>
-        {error && <div className="alert alert-error text-sm">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input className="input input-bordered w-full" placeholder="Ism" value={firstName} onChange={(e)=>setFirstName(e.target.value)} required />
-          <input className="input input-bordered w-full" placeholder="Familya" value={lastName} onChange={(e)=>setLastName(e.target.value)} required />
-          <input className="input input-bordered w-full" placeholder="Sinf raqami (masalan, 7)" value={classNumber} onChange={(e)=>setClassNumber(e.target.value)} required />
-          <select className="select select-bordered w-full" value={classType} onChange={(e)=>setClassType(e.target.value)}>
-            {['A','B','C','D','E','F'].map(t => <option key={t} value={t}>{`Sinf turi ${t}`}</option>)}
-          </select>
-          <button type="submit" className="btn btn-primary w-full" disabled={loading}>{loading ? 'Saving...' : 'Register'}</button>
+    <div className="max-w-sm mx-auto mt-12 border border-black">
+      <div className="bg-black text-white px-4 py-3 text-center text-xl font-extrabold">Ro’yxatdan o’tish</div>
+      <div className="p-5">
+        {error && <div className="alert alert-error text-sm mb-3">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input className="w-full border-2 border-black px-3 py-2" placeholder="Ism" value={firstName} onChange={(e)=>setFirstName(e.target.value)} required />
+          <input className="w-full border-2 border-black px-3 py-2" placeholder="Familya" value={lastName} onChange={(e)=>setLastName(e.target.value)} required />
+          <div className="grid grid-cols-[1fr_auto] gap-3">
+            <input className="border-2 border-black px-3 py-2" placeholder="Sinf" value={classNumber} onChange={(e)=>setClassNumber(e.target.value)} required />
+            <select className="border-2 border-black px-3 py-2" value={classType} onChange={(e)=>setClassType(e.target.value)}>
+              {['A','B','C','D','E','F'].map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <button type="submit" className="w-full bg-black text-white px-4 py-2" disabled={loading}>{loading ? 'Saving...' : 'Registratsiya qilish'}</button>
         </form>
-        <p className="text-sm">Admin? <Link to="/admin" className="link">Go to admin login</Link></p>
+        <p className="text-sm mt-3">Admin? <Link to="/admin" className="underline">Admin login</Link></p>
       </div>
     </div>
   )

@@ -9,13 +9,16 @@ import StudentTestsList from './student/TestsList.jsx'
 import TestSolve from './student/TestSolve.jsx'
 import ResultView from './student/ResultView.jsx'
 import AdminDashboard from './admin/AdminDashboard.jsx'
+import Home from './pages/Home.jsx'
+import About from './pages/About.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>        
-        <Route path="/" element={<Navigate to="/tests" replace />} />
+        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<About />} />
         <Route path="/tests" element={<StudentTestsList />} />
         <Route path="/test/:id" element={<TestSolve />} />
         <Route path="/result/:id" element={<ResultView />} />

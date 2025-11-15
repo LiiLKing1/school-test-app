@@ -34,6 +34,10 @@ export async function getTestById(id) {
   return { id: snap.id, ...snap.data() }
 }
 
+export async function deleteTest(id) {
+  await deleteDoc(doc(db, 'tests', id))
+}
+
 export async function saveResult(result) {
   const res = await addDoc(resultsCol, { ...result, time: serverTimestamp() })
   return res.id
@@ -54,4 +58,8 @@ export async function getResultById(id) {
 export async function clearAllResults() {
   const snap = await getDocs(resultsCol)
   await Promise.all(snap.docs.map(d => deleteDoc(d.ref)))
+}
+
+export async function deleteResult(id) {
+  await deleteDoc(doc(db, 'results', id))
 }

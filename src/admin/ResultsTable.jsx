@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getResults, clearAllResults } from '../utils/firestore'
+import { getResults, clearAllResults, deleteResult } from '../utils/firestore'
 
 export default function ResultsTable() {
   const [results, setResults] = useState([])
@@ -53,6 +53,12 @@ export default function ResultsTable() {
     if (!confirm('Barcha natijalar o\'chirilsinmi?')) return
     await clearAllResults()
     setResults([])
+  }
+
+  const handleDeleteResult = async (id) => {
+    if (!confirm('Ushbu o\'quvchining natijasi o\'chirilsinmi?')) return
+    await deleteResult(id)
+    setResults(rs => rs.filter(r => r.id !== id))
   }
 
   const SESSION_GAP_MS = 10 * 60 * 1000
@@ -140,7 +146,7 @@ export default function ResultsTable() {
                           <th>Wrong</th>
                           <th>Score</th>
                           <th>Time</th>
-                          <th></th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -153,7 +159,10 @@ export default function ResultsTable() {
                             <td>{(r.scoreGain ?? ((r.correct || 0) * 2))} / {(r.scoreTotal ?? (((r.correct || 0) + (r.wrongQuestions?.length || 0)) * 2))}</td>
                             <td>{r.time?.toDate ? r.time.toDate().toLocaleString() : ''}</td>
                             <td>
-                              <button className="btn btn-sm" onClick={()=>setSelected(r)}>View</button>
+                              <div className="flex gap-2">
+                                <button className="btn btn-sm" onClick={()=>setSelected(r)}>View</button>
+                                <button className="btn btn-error btn-sm" onClick={()=>handleDeleteResult(r.id)}>Delete</button>
+                              </div>
                             </td>
                           </tr>
                         ))}
