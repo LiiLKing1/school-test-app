@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext.jsx'
+import { clearCurrentStudent } from '../utils/localStudent'
 
 export default function AdminLogin() {
   const { login } = useAdmin()
@@ -8,6 +9,11 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Clear any student session when visiting admin login
+    clearCurrentStudent()
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -17,6 +23,7 @@ export default function AdminLogin() {
       setError('Invalid credentials')
       return
     }
+    clearCurrentStudent()
     navigate('/admin/dashboard')
   }
 
@@ -28,9 +35,8 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="space-y-3">
           <input className="w-full border-2 border-black px-3 py-2" placeholder="Login" value={username} onChange={(e)=>setUsername(e.target.value)} required />
           <input type="password" className="w-full border-2 border-black px-3 py-2" placeholder="Parol" value={password} onChange={(e)=>setPassword(e.target.value)} required />
-          <button type="submit" className="w-full bg-black text-white px-4 py-2">Registratsiya qilish</button>
+          <button type="submit" className="w-full bg-black text-white px-4 py-2">Kirish</button>
         </form>
-        <div className="text-xs opacity-70 mt-2">Hint: Login: Gulnoza, Parol: test-app-admin</div>
       </div>
     </div>
   )

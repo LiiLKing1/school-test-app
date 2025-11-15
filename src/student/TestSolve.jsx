@@ -15,8 +15,21 @@ export default function TestSolve() {
   useEffect(() => {
     const load = async () => {
       const data = await getTestById(id)
-      setTest(data)
-      setAnswers(data?.questions?.map(()=> '') || [])
+      // shuffle options once per question for this session
+      const shuffle = (arr) => {
+        const a = [...arr]
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[a[i], a[j]] = [a[j], a[i]]
+        }
+        return a
+      }
+      const withDisplay = data ? {
+        ...data,
+        questions: (data.questions || []).map(q => ({ ...q, displayOptions: shuffle(q.options || []) }))
+      } : null
+      setTest(withDisplay)
+      setAnswers(withDisplay?.questions?.map(()=> '') || [])
       setLoading(false)
     }
     load()
@@ -84,7 +97,7 @@ export default function TestSolve() {
                 <span className="text-[11px] px-2 py-0.5 border border-black shrink-0">Score: {typeof q.score==='number'? q.score : 2}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                {q.options.map((opt, j) => (
+                {(q.displayOptions || q.options).map((opt, j) => (
                   <label key={j} className={`flex items-center gap-3 border-2 border-black px-4 py-3 cursor-pointer ${answers[idx]===opt?'bg-black text-white':''}`}>
                     <input type="radio" className="radio" name={`q-${idx}`} checked={answers[idx]===opt} onChange={()=>selectAnswer(idx, opt)} />
                     <span className="text-base break-words">{opt}</span>

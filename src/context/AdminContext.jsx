@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 const AdminContext = createContext(null)
 const USERNAME = 'Gulnoza'
-const PASSWORD = 'test-app-admin'
+const PASSWORD = 'gulnoza409'
 
 export function AdminProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false)

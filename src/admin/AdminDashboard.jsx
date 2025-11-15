@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import ResultsTable from './ResultsTable.jsx'
 import { createTest, getTests, deleteTest } from '../utils/firestore'
+import { clearCurrentStudent } from '../utils/localStudent'
 
 const emptyQuestion = () => ({ q: '', options: ['', '', '', ''], correct: '', score: 2 })
 
@@ -23,6 +24,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadTests()
+    // ensure student session cleared when entering admin panel
+    clearCurrentStudent()
   }, [])
 
   const setQuestionField = (idx, field, value) => {
