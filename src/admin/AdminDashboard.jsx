@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import ResultsTable from './ResultsTable.jsx'
-import { createTest, getTests, deleteTest } from '../utils/firestore'
+import { createTest, getTests, deleteTest, createBrainBucksCard, getBrainBucksCards, deleteBrainBucksCard, updateBrainBucksCard } from '../utils/firestore'
 import { clearCurrentStudent } from '../utils/localStudent'
 
 const emptyQuestion = () => ({ q: '', options: ['', '', '', ''], correct: '', score: 2 })
@@ -14,6 +14,13 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState('')
   const [tests, setTests] = useState([])
   const [testsLoading, setTestsLoading] = useState(false)
+  const [bbValue, setBbValue] = useState(100)
+  const [bbQuestion, setBbQuestion] = useState('')
+  const [bbAnswer, setBbAnswer] = useState('')
+  const [bbSaving, setBbSaving] = useState(false)
+  const [bbMessage, setBbMessage] = useState('')
+  const [bbCards, setBbCards] = useState([])
+  const [bbEditingId, setBbEditingId] = useState(null)
 
   const loadTests = async () => {
     setTestsLoading(true)
@@ -22,8 +29,28 @@ export default function AdminDashboard() {
     setTestsLoading(false)
   }
 
+  const handleEditBrainBucks = (card) => {
+    setBbValue(card.value)
+    setBbQuestion(card.question || '')
+    setBbAnswer(card.answer || '')
+    setBbEditingId(card.id)
+    setTab('brainbucks')
+  }
+
+  const handleDeleteBrainBucks = async (id) => {
+    if (!confirm('Ushbu Brain Bucks savoli o\'chirilsinmi?')) return
+    await deleteBrainBucksCard(id)
+    setBbCards(cards => cards.filter(c => c.id !== id))
+  }
+
+  const loadBrainBucks = async () => {
+    const data = await getBrainBucksCards()
+    setBbCards(data)
+  }
+
   useEffect(() => {
     loadTests()
+    loadBrainBucks()
     // ensure student session cleared when entering admin panel
     clearCurrentStudent()
   }, [])
@@ -61,6 +88,30 @@ export default function AdminDashboard() {
     if (!confirm('Ushbu test o\'chirilsinmi?')) return
     await deleteTest(id)
     setTests(ts => ts.filter(t => t.id !== id))
+  }
+
+  const handleSaveBrainBucks = async (e) => {
+    e.preventDefault()
+    if (!bbQuestion.trim()) return
+    setBbSaving(true)
+    setBbMessage('')
+    try {
+      const payload = { value: bbValue, question: bbQuestion.trim(), answer: bbAnswer.trim() }
+      if (bbEditingId) {
+        await updateBrainBucksCard(bbEditingId, payload)
+      } else {
+        await createBrainBucksCard(payload)
+      }
+      setBbQuestion('')
+      setBbAnswer('')
+      setBbEditingId(null)
+      setBbMessage('Card saved')
+      await loadBrainBucks()
+    } catch (e2) {
+      setBbMessage(e2.message || 'Failed to save card')
+    } finally {
+      setBbSaving(false)
+    }
   }
 
   return (
@@ -136,6 +187,78 @@ export default function AdminDashboard() {
               <button type="submit" className="inline-block bg-black text-white px-6 py-2 rounded-none" disabled={saving}>{saving ? 'Saving...' : 'Save Test'}</button>
             </div>
           </form>
+        </div>
+
+        <input type="radio" name="tabs" role="tab" className="tab" aria-label="Brain Bucks" checked={tab==='brainbucks'} onChange={()=>setTab('brainbucks')} />
+        <div role="tabpanel" className="tab-content bg-base-100 p-4 rounded-box">
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold">Brain Bucks questions</h2>
+            <form onSubmit={handleSaveBrainBucks} className="space-y-4">
+              {bbMessage && <div className="alert alert-info text-sm">{bbMessage}</div>}
+              <div className="flex flex-wrap gap-2">
+                {[100,200,300,400,500].map(v => (
+                  <button
+                    key={v}
+                    type="button"
+                    className={`px-4 py-2 border-2 border-black text-sm font-bold ${bbValue===v ? 'bg-black text-white' : 'bg-white'}`}
+                    onClick={() => setBbValue(v)}
+                  >
+                    {v}$
+                  </button>
+                ))}
+              </div>
+              <textarea
+                className="w-full border-2 border-black px-3 py-2 min-h-[80px]"
+                placeholder="Question here"
+                value={bbQuestion}
+                onChange={e => setBbQuestion(e.target.value)}
+                required
+              />
+              <textarea
+                className="w-full border-2 border-black px-3 py-2 min-h-[60px]"
+                placeholder="Answer here (faqat o'qituvchi uchun)"
+                value={bbAnswer}
+                onChange={e => setBbAnswer(e.target.value)}
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="inline-block bg-black text-white px-6 py-2 rounded-none"
+                  disabled={bbSaving}
+                >
+                  {bbSaving ? 'Saving...' : (bbEditingId ? 'Update' : 'Apply')}
+                </button>
+              </div>
+            </form>
+
+            {bbCards.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm">Existing cards</h3>
+                <div className="max-h-56 overflow-auto border border-base-300 divide-y divide-base-200">
+                  {bbCards.map(c => (
+                    <div key={c.id} className="px-3 py-2 text-sm flex items-center gap-2">
+                      <span className="font-bold whitespace-nowrap">{c.value}$</span>
+                      <span className="truncate flex-1">{c.question}</span>
+                      <button
+                        type="button"
+                        className="btn btn-xs rounded-none"
+                        onClick={() => handleEditBrainBucks(c)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs btn-error rounded-none"
+                        onClick={() => handleDeleteBrainBucks(c.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <input type="radio" name="tabs" role="tab" className="tab" aria-label="Results" checked={tab==='results'} onChange={()=>setTab('results')} />

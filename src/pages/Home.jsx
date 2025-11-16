@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function Home() {
   return (
-    <div className="mt-14 md:mt-16 space-y-16">
+    <div className="mt-24 md:mt-28 pb-16 space-y-16">
       <section className="space-y-6">
         <div className="inline-block">
           <div className="relative">
@@ -18,8 +18,8 @@ export default function Home() {
         <Link to="/tests" className="inline-block bg-black text-white px-6 py-3 rounded-none">Explore</Link>
       </section>
 
-      <footer className="w-full bg-black text-white px-4 py-3 text-sm">
-        <div className="max-w-3xl mx-auto">
+      <footer className="fixed bottom-0 left-0 w-full bg-black text-white px-4 py-3 text-sm">
+        <div className="max-w-3xl mx-auto text-center">
           <span className="opacity-80">Creator:</span> Gulnoza Boybo’tayeva Abduvaxobovna
         </div>
       </footer>

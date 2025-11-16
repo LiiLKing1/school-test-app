@@ -8,6 +8,7 @@ import AdminRoute from './utils/AdminRoute.jsx'
 import StudentTestsList from './student/TestsList.jsx'
 import TestSolve from './student/TestSolve.jsx'
 import ResultView from './student/ResultView.jsx'
+import BrainBucksGame from './games/BrainBucksGame.jsx'
 import AdminDashboard from './admin/AdminDashboard.jsx'
 import Home from './pages/Home.jsx'
 import About from './pages/About.jsx'
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/tests" element={<StudentTestsList />} />
         <Route path="/test/:id" element={<TestSolve />} />
         <Route path="/result/:id" element={<ResultView />} />
+        <Route path="/games/brain-bucks" element={<BrainBucksGame />} />
 
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={
