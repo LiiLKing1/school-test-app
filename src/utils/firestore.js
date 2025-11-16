@@ -1,5 +1,5 @@
 import { db } from '../firebase/config'
-import { collection, doc, addDoc, getDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc } from 'firebase/firestore'
+import { collection, doc, addDoc, getDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, updateDoc } from 'firebase/firestore'
 
 const studentsCol = collection(db, 'students')
 const testsCol = collection(db, 'tests')
@@ -37,6 +37,10 @@ export async function getTestById(id) {
 
 export async function deleteTest(id) {
   await deleteDoc(doc(db, 'tests', id))
+}
+
+export async function updateTest(id, testData) {
+  await updateDoc(doc(db, 'tests', id), { ...testData, time: serverTimestamp() })
 }
 
 export async function saveResult(result) {

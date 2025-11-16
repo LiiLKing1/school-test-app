@@ -16,9 +16,14 @@ module.exports = {
           '33%': { transform: 'translate(40px, -20px) scale(1.05)' },
           '66%': { transform: 'translate(-30px, 20px) scale(0.95)' },
         },
+        rays: {
+          '0%': { backgroundPosition: '0% 0%' },
+          '100%': { backgroundPosition: '0% 100%' },
+        },
       },
       animation: {
         blob: 'blob 18s ease-in-out infinite',
+        rays: 'rays 40s linear infinite',
       },
     },
   },

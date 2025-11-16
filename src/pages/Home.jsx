@@ -7,7 +7,7 @@ export default function Home() {
         <div className="inline-block">
           <div className="relative">
             <div className="absolute -inset-3 bg-black" />
-            <h1 className="relative z-10 text-5xl md:text-6xl font-extrabold text-white px-5 py-3">36-School Testing System</h1>
+            <h1 className="relative z-10 text-4xl md:text-6xl font-extrabold text-white px-5 py-3">36-School Testing System</h1>
           </div>
         </div>
         <p className="max-w-2xl text-base md:text-lg leading-relaxed">

@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react'
 import ResultsTable from './ResultsTable.jsx'
-import { createTest, getTests, deleteTest, createBrainBucksCard, getBrainBucksCards, deleteBrainBucksCard, updateBrainBucksCard } from '../utils/firestore'
+import { createTest, getTests, deleteTest, updateTest, createBrainBucksCard, getBrainBucksCards, deleteBrainBucksCard, updateBrainBucksCard } from '../utils/firestore'
 import { clearCurrentStudent } from '../utils/localStudent'
 
 const emptyQuestion = () => ({ q: '', options: ['', '', '', ''], correct: '', score: 2 })
+const normalizeQuestion = (q = {}) => ({
+  q: q.q || '',
+  options: Array.from({ length: 4 }, (_, idx) => q.options?.[idx] || ''),
+  correct: q.correct || '',
+  score: typeof q.score === 'number' ? q.score : 2,
+})
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('results')
@@ -14,6 +20,7 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState('')
   const [tests, setTests] = useState([])
   const [testsLoading, setTestsLoading] = useState(false)
+  const [editingTestId, setEditingTestId] = useState(null)
   const [bbValue, setBbValue] = useState(100)
   const [bbQuestion, setBbQuestion] = useState('')
   const [bbAnswer, setBbAnswer] = useState('')
@@ -64,17 +71,43 @@ export default function AdminDashboard() {
   const addQuestion = () => setQuestions(qs => [...qs, emptyQuestion()])
   const removeQuestion = (idx) => setQuestions(qs => qs.filter((_, i) => i !== idx))
 
+  const resetForm = () => {
+    setTitle('')
+    setDescription('')
+    setQuestions([emptyQuestion()])
+    setEditingTestId(null)
+  }
+
+  const handleEditTest = (test) => {
+    setTitle(test.title || '')
+    setDescription(test.description || '')
+    const qs = (test.questions?.length ? test.questions : [emptyQuestion()]).map(q => normalizeQuestion(q))
+    setQuestions(qs.length ? qs : [emptyQuestion()])
+    setEditingTestId(test.id)
+    setMessage('')
+    setTab('create')
+  }
+
+  const handleCancelEdit = () => {
+    resetForm()
+    setMessage('Tahrirlash bekor qilindi')
+  }
+
   const handleSaveTest = async (e) => {
     e.preventDefault()
     setSaving(true)
     setMessage('')
     try {
       const cleaned = questions.map(q => ({ ...q, options: q.options.filter(Boolean) }))
-      await createTest({ title, description, questions: cleaned })
-      setTitle('')
-      setDescription('')
-      setQuestions([emptyQuestion()])
-      setMessage('Test saved successfully')
+      const payload = { title: title.trim(), description: description.trim(), questions: cleaned }
+      if (editingTestId) {
+        await updateTest(editingTestId, payload)
+        setMessage('Test updated successfully')
+      } else {
+        await createTest(payload)
+        setMessage('Test saved successfully')
+      }
+      resetForm()
       await loadTests()
       setTab('results')
     } catch (e2) {
@@ -135,7 +168,10 @@ export default function AdminDashboard() {
                       <div className="font-semibold break-words">{t.title}</div>
                       <div className="text-xs opacity-70">{(t.questions||[]).reduce((s,q)=>s + (typeof q.score==='number'? q.score:2),0)} score</div>
                     </div>
-                    <button className="btn btn-error btn-sm rounded-none" onClick={() => handleDeleteTest(t.id)}>Delete</button>
+                    <div className="flex gap-2">
+                      <button className="btn btn-sm rounded-none" onClick={() => handleEditTest(t)}>Edit</button>
+                      <button className="btn btn-error btn-sm rounded-none" onClick={() => handleDeleteTest(t.id)}>Delete</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -143,6 +179,14 @@ export default function AdminDashboard() {
           </div>
           <form onSubmit={handleSaveTest} className="space-y-5">
             {message && <div className="alert alert-info text-sm">{message}</div>}
+            {editingTestId && (
+              <div className="alert alert-warning text-sm flex flex-wrap items-center gap-2">
+                <span>Hozirda mavjud testni tahrirlayapsiz</span>
+                <button type="button" className="btn btn-xs" onClick={handleCancelEdit}>
+                  Bekor qilish
+                </button>
+              </div>
+            )}
             <input className="w-full border-2 border-black px-3 py-2" placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} required />
             <textarea className="w-full border-2 border-black px-3 py-2" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
             <div className="space-y-8">
@@ -185,6 +229,11 @@ export default function AdminDashboard() {
             </div>
             <div className="flex gap-2">
               <button type="submit" className="inline-block bg-black text-white px-6 py-2 rounded-none" disabled={saving}>{saving ? 'Saving...' : 'Save Test'}</button>
+              {editingTestId && (
+                <button type="button" className="btn" onClick={handleCancelEdit}>
+                  Bekor qilish
+                </button>
+              )}
             </div>
           </form>
         </div>

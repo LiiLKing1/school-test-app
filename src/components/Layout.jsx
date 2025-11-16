@@ -16,13 +16,7 @@ export default function Layout() {
   }, [theme])
 
   return (
-    <div className="relative min-h-screen bg-base-200 overflow-hidden">
-      {/* subtle animated gradient background for all pages */}
-      <div className="pointer-events-none absolute -z-10 inset-0">
-        <div className="absolute -left-40 top-[-120px] h-80 w-80 rounded-full bg-gradient-to-tr from-indigo-500 via-blue-500 to-sky-300 opacity-20 blur-3xl animate-blob" />
-        <div className="absolute right-[-140px] bottom-[-140px] h-96 w-96 rounded-full bg-gradient-to-tr from-pink-400 via-fuchsia-500 to-purple-500 opacity-20 blur-3xl animate-blob" />
-      </div>
-
+    <div className="min-h-screen bg-base-200">
       <div className="w-full bg-black text-white">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to="/" className="leading-tight flex items-center gap-2 shrink-0">
@@ -43,7 +37,7 @@ export default function Layout() {
 
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-3">
-            {!student && (
+            {!student && !isAdmin && (
               <Link to="/register" className="btn btn-sm bg-white text-black border-0 rounded-none px-4">Register</Link>
             )}
             {!isAdmin && (
@@ -132,7 +126,7 @@ export default function Layout() {
               <NavLink to="/about" className={({isActive})=>`px-2 py-1 ${isActive?'underline underline-offset-4':''}`} onClick={()=>setNavOpen(false)}>About</NavLink>
             </div>
             <div className="flex flex-wrap gap-2">
-              {!student && (
+              {!student && !isAdmin && (
                 <Link to="/register" className="btn btn-xs bg-white text-black border-0 rounded-none px-3" onClick={()=>setNavOpen(false)}>Register</Link>
               )}
               {!isAdmin && (

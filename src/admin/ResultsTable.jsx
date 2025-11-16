@@ -105,11 +105,11 @@ export default function ResultsTable() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">Test Results</h1>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex gap-2 flex-wrap">
           <button className="btn btn-error" onClick={handleClearAll} disabled={loading || results.length===0}>Clear all</button>
         </div>
-        <button className="btn btn-outline" onClick={handleDownload} disabled={loading || results.length===0}>
+        <button className="btn btn-outline w-full sm:w-auto" onClick={handleDownload} disabled={loading || results.length===0}>
           Download (Excel)
         </button>
       </div>
@@ -136,7 +136,7 @@ export default function ResultsTable() {
                       URL.revokeObjectURL(url)
                     }}>Download (Excel)</button>
                   </div>
-                  <div className="overflow-x-auto mt-3">
+                  <div className="hidden md:block overflow-x-auto mt-3">
                     <table className="table">
                       <thead>
                         <tr>
@@ -168,6 +168,24 @@ export default function ResultsTable() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                  <div className="md:hidden mt-3 space-y-3">
+                    {group.map(r => (
+                      <div key={r.id} className="border border-base-200 rounded-lg p-3 space-y-2 text-sm">
+                        <div className="font-semibold text-base">{r.studentName}</div>
+                        <div className="flex flex-wrap text-xs uppercase tracking-wide text-base-content/70 gap-x-4 gap-y-1">
+                          <span>Test: <span className="normal-case font-medium text-base-content">{r.testTitle || r.testId}</span></span>
+                          <span>Correct: <span className="normal-case font-medium text-base-content">{r.correct}</span></span>
+                          <span>Wrong: <span className="normal-case font-medium text-base-content">{r.wrongQuestions?.length || 0}</span></span>
+                          <span>Score: <span className="normal-case font-medium text-base-content">{(r.scoreGain ?? ((r.correct || 0) * 2))} / {(r.scoreTotal ?? (((r.correct || 0) + (r.wrongQuestions?.length || 0)) * 2))}</span></span>
+                        </div>
+                        <div className="text-xs text-base-content/80">{r.time?.toDate ? r.time.toDate().toLocaleString() : ''}</div>
+                        <div className="flex gap-2 pt-2">
+                          <button className="btn btn-sm flex-1" onClick={()=>setSelected(r)}>View</button>
+                          <button className="btn btn-error btn-sm flex-1" onClick={()=>handleDeleteResult(r.id)}>Delete</button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
