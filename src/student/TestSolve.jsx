@@ -59,6 +59,7 @@ export default function TestSolve() {
         studentName: `${student?.firstName ?? ''} ${student?.lastName ?? ''}`.trim() || 'Anonymous',
         testId: id,
         testTitle: test.title,
+        subject: test.subject || null,
         correct,
         scoreGain,
         scoreTotal,

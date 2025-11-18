@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getTests } from '../utils/firestore'
+import { getSubjectDisplay, getSubjectBadgeClass, getSubjectBadgeStyle } from '../constants/subjects'
 
 export default function StudentTestsList() {
   const [tests, setTests] = useState([])
@@ -29,9 +30,15 @@ export default function StudentTestsList() {
                 <div className="absolute inset-0 translate-x-2 translate-y-2 border border-black pointer-events-none" />
                 <div className="relative border-2 border-black bg-white p-5 h-full flex flex-col">
                   <div className="flex items-start justify-between gap-2 flex-wrap">
-                    <h2 className="text-3xl font-extrabold break-words min-w-0 max-w-full">{t.title}</h2>
+                    <div
+                      className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded ${getSubjectBadgeClass(t.subject)}`}
+                      style={getSubjectBadgeStyle(t.subject)}
+                    >
+                      {getSubjectDisplay(t.subject)}
+                    </div>
                     <span className="text-[11px] px-2 py-0.5 border border-black shrink-0">{(t.questions || []).reduce((s,q)=> s + (typeof q.score==='number'? q.score : 2), 0)} score</span>
                   </div>
+                  <h2 className="text-3xl font-extrabold break-words min-w-0 max-w-full mt-2">{t.title}</h2>
                   <p className="mt-1 text-sm break-words">{t.description}</p>
                   <div className="mt-4 pt-2">
                     <Link to={`/test/${t.id}`} className="inline-block bg-black text-white px-6 py-2 rounded-none">Start</Link>

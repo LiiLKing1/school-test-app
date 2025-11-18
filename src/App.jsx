@@ -10,6 +10,7 @@ import TestSolve from './student/TestSolve.jsx'
 import ResultView from './student/ResultView.jsx'
 import BrainBucksGame from './games/BrainBucksGame.jsx'
 import AdminDashboard from './admin/AdminDashboard.jsx'
+import TeacherProfile from './admin/TeacherProfile.jsx'
 import Home from './pages/Home.jsx'
 import About from './pages/About.jsx'
 
@@ -29,6 +30,11 @@ export default function App() {
         <Route path="/admin/dashboard" element={
           <AdminRoute>
             <AdminDashboard />
+          </AdminRoute>
+        } />
+        <Route path="/admin/profile" element={
+          <AdminRoute>
+            <TeacherProfile />
           </AdminRoute>
         } />
 

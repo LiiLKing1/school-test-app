@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getResults, clearAllResults, deleteResult } from '../utils/firestore'
+import { useAdmin } from '../context/AdminContext.jsx'
+import { getSubjectDisplay } from '../constants/subjects'
 
 export default function ResultsTable() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
+  const { role, teacher } = useAdmin()
 
   useEffect(() => {
     const load = async () => {
@@ -65,8 +68,21 @@ export default function ResultsTable() {
   const COOLDOWN_MS = 10 * 60 * 1000
 
   const grouped = useMemo(() => {
+    // Apply teacher subject filter if needed
+    const isTeacher = role === 'teacher' && !!teacher?.subject
+    const isLegacyEnglishTeacher = isTeacher && !teacher.id && teacher.login === 'Gulnoza'
+    const base = isTeacher
+      ? (results || []).filter(r => {
+          if (isLegacyEnglishTeacher) {
+            // Legacy results without subject + all English results
+            return !r.subject || r.subject === teacher.subject
+          }
+          return r.subject === teacher.subject
+        })
+      : (results || [])
+
     // Normalize times and sort ascending
-    const items = (results || []).map(r => ({
+    const items = base.map(r => ({
       ...r,
       _timeMs: r.time?.toDate ? r.time.toDate().getTime() : 0,
     })).sort((a,b)=>a._timeMs - b._timeMs)
@@ -142,6 +158,7 @@ export default function ResultsTable() {
                         <tr>
                           <th>Student</th>
                           <th>Test</th>
+                          <th>Subject</th>
                           <th>Correct</th>
                           <th>Wrong</th>
                           <th>Score</th>
@@ -154,6 +171,7 @@ export default function ResultsTable() {
                           <tr key={r.id}>
                             <td>{r.studentName}</td>
                             <td>{r.testTitle || r.testId}</td>
+                            <td>{getSubjectDisplay(r.subject)}</td>
                             <td>{r.correct}</td>
                             <td>{r.wrongQuestions?.length || 0}</td>
                             <td>{(r.scoreGain ?? ((r.correct || 0) * 2))} / {(r.scoreTotal ?? (((r.correct || 0) + (r.wrongQuestions?.length || 0)) * 2))}</td>
@@ -175,6 +193,7 @@ export default function ResultsTable() {
                         <div className="font-semibold text-base">{r.studentName}</div>
                         <div className="flex flex-wrap text-xs uppercase tracking-wide text-base-content/70 gap-x-4 gap-y-1">
                           <span>Test: <span className="normal-case font-medium text-base-content">{r.testTitle || r.testId}</span></span>
+                          <span>Subject: <span className="normal-case font-medium text-base-content">{getSubjectDisplay(r.subject)}</span></span>
                           <span>Correct: <span className="normal-case font-medium text-base-content">{r.correct}</span></span>
                           <span>Wrong: <span className="normal-case font-medium text-base-content">{r.wrongQuestions?.length || 0}</span></span>
                           <span>Score: <span className="normal-case font-medium text-base-content">{(r.scoreGain ?? ((r.correct || 0) * 2))} / {(r.scoreTotal ?? (((r.correct || 0) + (r.wrongQuestions?.length || 0)) * 2))}</span></span>

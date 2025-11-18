@@ -5,6 +5,8 @@ const studentsCol = collection(db, 'students')
 const testsCol = collection(db, 'tests')
 const resultsCol = collection(db, 'results')
 const brainBucksCol = collection(db, 'brainBucks')
+const teachersCol = collection(db, 'teachers')
+const subjectsCol = collection(db, 'subjects')
 
 export async function registerStudent(firstName, lastName, classNumber, classType) {
   const res = await addDoc(studentsCol, { firstName, lastName, classNumber, classType, time: serverTimestamp() })
@@ -67,6 +69,50 @@ export async function clearAllResults() {
 
 export async function deleteResult(id) {
   await deleteDoc(doc(db, 'results', id))
+}
+
+export async function createTeacher(teacher) {
+  const payload = { ...teacher, time: serverTimestamp() }
+  const res = await addDoc(teachersCol, payload)
+  return res.id
+}
+
+export async function getTeachers() {
+  const q = query(teachersCol, orderBy('time', 'desc'))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+}
+
+export async function getTeacherById(id) {
+  const snap = await getDoc(doc(db, 'teachers', id))
+  if (!snap.exists()) return null
+  return { id: snap.id, ...snap.data() }
+}
+
+export async function updateTeacher(id, teacher) {
+  await updateDoc(doc(db, 'teachers', id), teacher)
+}
+
+export async function getTeacherByCredentials(login, password) {
+  const all = await getTeachers()
+  return all.find(t => t.login === login && t.password === password) || null
+}
+
+export async function deleteTeacher(id) {
+  await deleteDoc(doc(db, 'teachers', id))
+}
+
+export async function createSubject(subject) {
+  // subject: { name: string }
+  const payload = { ...subject, time: serverTimestamp() }
+  const res = await addDoc(subjectsCol, payload)
+  return res.id
+}
+
+export async function getSubjects() {
+  const q = query(subjectsCol, orderBy('time', 'asc'))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
 }
 
 export async function createBrainBucksCard(card) {

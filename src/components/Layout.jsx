@@ -1,19 +1,30 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAdmin } from '../context/AdminContext.jsx'
 import { getCurrentStudent } from '../utils/localStudent'
 import UserBadge from './UserBadge.jsx'
 
 export default function Layout() {
-  const { isAdmin, logout } = useAdmin()
+  const { isAdmin, logout, role, teacher } = useAdmin()
   const student = getCurrentStudent()
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
   const [navOpen, setNavOpen] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('theme', theme)
   }, [theme])
+
+  const hideNav = role === 'super' && location.pathname.startsWith('/admin')
+
+  if (hideNav) {
+    return (
+      <div className="min-h-screen bg-base-200">
+        <Outlet />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -46,7 +57,21 @@ export default function Layout() {
             {isAdmin && (
               <Link to="/admin/dashboard" className="btn btn-sm bg-white text-black border-0 rounded-none px-4">Dashboard</Link>
             )}
-            {isAdmin && (
+            {role === 'teacher' && teacher && (
+              <Link
+                to="/admin/profile"
+                className="flex items-center gap-2 bg-white text-black border-0 rounded-none px-3 py-1 max-w-[220px]"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 text-black grid place-items-center font-bold text-xs">
+                  <span>{`${(teacher.firstName||'').charAt(0)}${(teacher.lastName||'').charAt(0)}`.toUpperCase() || '?'}</span>
+                </div>
+                <div className="text-[11px] leading-tight text-left">
+                  <div className="font-semibold max-w-[130px] truncate">{`${teacher.firstName||''} ${teacher.lastName||''}`.trim()}</div>
+                  <div className="opacity-80">{teacher.subject || 'Teacher'}</div>
+                </div>
+              </Link>
+            )}
+            {isAdmin && role !== 'teacher' && (
               <button className="btn btn-sm bg-white text-black border-0 rounded-none px-4" onClick={logout}>Logout</button>
             )}
             {student && <UserBadge />}
@@ -80,7 +105,22 @@ export default function Layout() {
 
           {/* Mobile: theme + hamburger */}
           <div className="flex md:hidden items-center gap-3">
-            {student && <UserBadge />}
+            {role === 'teacher' && teacher ? (
+              <Link
+                to="/admin/profile"
+                className="flex items-center gap-2 bg-white text-black border-0 rounded-none px-3 py-1 max-w-[190px]"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-white to-gray-200 text-black grid place-items-center font-bold text-xs">
+                  <span>{`${(teacher.firstName||'').charAt(0)}${(teacher.lastName||'').charAt(0)}`.toUpperCase() || '?'}</span>
+                </div>
+                <div className="text-[11px] leading-tight text-left">
+                  <div className="font-semibold max-w-[120px] truncate">{`${teacher.firstName||''} ${teacher.lastName||''}`.trim()}</div>
+                  <div className="opacity-80">{teacher.subject || 'Teacher'}</div>
+                </div>
+              </Link>
+            ) : (
+              student && <UserBadge />
+            )}
             <label className="swap swap-rotate">
               <input
                 type="checkbox"
@@ -135,7 +175,7 @@ export default function Layout() {
               {isAdmin && (
                 <Link to="/admin/dashboard" className="btn btn-xs bg-white text-black border-0 rounded-none px-3" onClick={()=>setNavOpen(false)}>Dashboard</Link>
               )}
-              {isAdmin && (
+              {isAdmin && role !== 'teacher' && (
                 <button className="btn btn-xs bg-white text-black border-0 rounded-none px-3" onClick={()=>{ setNavOpen(false); logout() }}>Logout</button>
               )}
             </div>

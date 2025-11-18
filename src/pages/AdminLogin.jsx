@@ -8,6 +8,7 @@ export default function AdminLogin() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -15,16 +16,23 @@ export default function AdminLogin() {
     clearCurrentStudent()
   }, [])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    const ok = login(username, password)
-    if (!ok) {
-      setError('Invalid credentials')
-      return
+    setLoading(true)
+    try {
+      const role = await login(username, password)
+      if (!role) {
+        setError('Invalid credentials')
+        return
+      }
+      clearCurrentStudent()
+      navigate('/admin/dashboard')
+    } catch (err) {
+      setError(err.message || 'Login failed')
+    } finally {
+      setLoading(false)
     }
-    clearCurrentStudent()
-    navigate('/admin/dashboard')
   }
 
   return (
@@ -35,7 +43,7 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="space-y-3">
           <input className="w-full border-2 border-black px-3 py-2" placeholder="Login" value={username} onChange={(e)=>setUsername(e.target.value)} required />
           <input type="password" className="w-full border-2 border-black px-3 py-2" placeholder="Parol" value={password} onChange={(e)=>setPassword(e.target.value)} required />
-          <button type="submit" className="w-full bg-black text-white px-4 py-2">Kirish</button>
+          <button type="submit" className="w-full bg-black text-white px-4 py-2" disabled={loading}>{loading ? 'Kirish...' : 'Kirish'}</button>
         </form>
       </div>
     </div>
