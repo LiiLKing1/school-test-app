@@ -1,12 +1,13 @@
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAdmin } from '../context/AdminContext.jsx'
-import { getCurrentStudent } from '../utils/localStudent'
+import { getCurrentStudent, clearCurrentStudent } from '../utils/localStudent'
 import UserBadge from './UserBadge.jsx'
 
 export default function Layout() {
   const { isAdmin, logout, role, teacher } = useAdmin()
   const student = getCurrentStudent()
+  const navigate = useNavigate()
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
   const [navOpen, setNavOpen] = useState(false)
   const location = useLocation()
@@ -17,6 +18,11 @@ export default function Layout() {
   }, [theme])
 
   const hideNav = role === 'super' && location.pathname.startsWith('/admin')
+
+  const handleStudentLogout = () => {
+    clearCurrentStudent()
+    navigate('/register')
+  }
 
   if (hideNav) {
     return (
@@ -74,7 +80,17 @@ export default function Layout() {
             {isAdmin && role !== 'teacher' && (
               <button className="btn btn-sm bg-white text-black border-0 rounded-none px-4" onClick={logout}>Logout</button>
             )}
-            {student && <UserBadge />}
+            {student && !isAdmin && (
+              <>
+                <UserBadge />
+                <button
+                  className="btn btn-sm bg-white text-black border-0 rounded-none px-4"
+                  onClick={handleStudentLogout}
+                >
+                  Logout
+                </button>
+              </>
+            )}
             <label className="swap swap-rotate">
               {/* this hidden checkbox controls the state */}
               <input
@@ -177,6 +193,14 @@ export default function Layout() {
               )}
               {isAdmin && role !== 'teacher' && (
                 <button className="btn btn-xs bg-white text-black border-0 rounded-none px-3" onClick={()=>{ setNavOpen(false); logout() }}>Logout</button>
+              )}
+              {student && !isAdmin && (
+                <button
+                  className="btn btn-xs bg-white text-black border-0 rounded-none px-3"
+                  onClick={()=>{ setNavOpen(false); handleStudentLogout() }}
+                >
+                  Logout
+                </button>
               )}
             </div>
           </div>

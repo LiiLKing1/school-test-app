@@ -5,7 +5,7 @@ import { setCurrentStudent } from '../utils/localStudent'
 export default function Register() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [classNumber, setClassNumber] = useState('')
+  const [classNumber, setClassNumber] = useState('1')
   const [classType, setClassType] = useState('A')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,7 +34,11 @@ export default function Register() {
           <input className="w-full border-2 border-black px-3 py-2" placeholder="Ism" value={firstName} onChange={(e)=>setFirstName(e.target.value)} required />
           <input className="w-full border-2 border-black px-3 py-2" placeholder="Familya" value={lastName} onChange={(e)=>setLastName(e.target.value)} required />
           <div className="grid grid-cols-[1fr_auto] gap-3">
-            <input className="border-2 border-black px-3 py-2" placeholder="Sinf" value={classNumber} onChange={(e)=>setClassNumber(e.target.value)} required />
+            <select className="border-2 border-black px-3 py-2" value={classNumber} onChange={(e)=>setClassNumber(e.target.value)} required>
+              {[1,2,3,4,5,6,7,8,9,10,11].map(n => (
+                <option key={n} value={String(n)}>{n}</option>
+              ))}
+            </select>
             <select className="border-2 border-black px-3 py-2" value={classType} onChange={(e)=>setClassType(e.target.value)}>
               {['A','B','C','D','E','F'].map(t => <option key={t} value={t}>{t}</option>)}
             </select>
